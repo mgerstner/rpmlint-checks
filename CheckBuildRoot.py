@@ -18,8 +18,10 @@ class BuildRootCheck(AbstractCheck.AbstractFilesCheck):
     def __init__(self):
         AbstractCheck.AbstractFilesCheck.__init__(self, "CheckBuildRoot", ".*")
         t = rpm.expandMacro('%buildroot')
-        for m in ('name', 'version', 'release'):
-            t = t.replace("%%{%s}" % (m), r'[\w\!-\.]{1,20}')
+        for tag in ('name', 'version', 'release'):
+            # newer RPM versions use upper case macros here. let's support both.
+            for m in (tag.upper(), tag.lower()):
+                t = t.replace("%%{%s}" % (m), r'[\w\!-\.]{1,20}')
         self.build_root_re = re.compile(t)
 
     def check_file(self, pkg, filename):
